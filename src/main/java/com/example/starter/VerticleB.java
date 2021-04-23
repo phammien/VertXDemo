@@ -34,49 +34,5 @@ public class VerticleB extends AbstractVerticle {
             });
         });
         startPromise.complete();
-
-//        vertx.eventBus().request("VerticleB", "", ar -> {
-//
-//            System.out.println("Calling to Verticle C");
-//
-//            if (ar.succeeded()) {
-//
-//                System.out.println("Received reply from C: " + ar.result().body());
-//
-//                vertx.eventBus().consumer("VerticleA").handler(message -> {
-//                    message.reply(ar.result().body());
-//                });
-//
-//            } else {
-//                System.out.println("Fail to call C : " + ar.cause().getMessage());
-//            }
-//        });
     }
-
-//    public Future<Void> registerConsumer() {
-//
-//        Promise promise = Promise.promise();
-//
-//        eventBus.consumer("VerticleA").handler(message -> {
-//            message.reply("VerticleB receive a message from Verticle A : " + message.body());
-//        });
-//
-//        return promise.future();
-//    }
-//
-//    public Future<String> receiveMessage() {
-//
-//        Promise<String> promise = Promise.promise();
-//
-//        eventBus.request("VerticleC", "", ar -> {
-//            if(ar.succeeded()) {
-//                System.out.println("Receive a message from VerticleC : " + Json.encodePrettily(ar.result().body()));
-//                promise.complete(Json.encodePrettily(ar.result().body()));
-//            } else {
-//                System.out.println("Call VerticleC fail : " + ar.cause().getMessage());
-//            }
-//        });
-//
-//        return promise.future();
-//    }
 }
