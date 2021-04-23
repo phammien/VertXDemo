@@ -1,6 +1,7 @@
 com/example/starter/Main.class
 com/example/starter/VerticleB.class
-com/example/starter/VerticleC.class
-com/example/starter/model/Employee.class
 com/example/starter/VerticleA.class
 com/example/starter/JDBC.class
+com/example/starter/VerticleC.class
+com/example/starter/model/Employee.class
+com/example/starter/config/VerticleConfig.class
