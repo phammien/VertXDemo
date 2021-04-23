@@ -1,9 +1,12 @@
 package com.example.starter;
 
+import com.example.starter.config.SQLConst;
 import com.example.starter.config.VerticleConfig;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 public class Main {
 
@@ -11,15 +14,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        vertx.deployVerticle(VerticleConfig.verticleA,recs -> {
-            if(recs.succeeded()) {
-                vertx.deployVerticle(VerticleConfig.verticleC);
-                vertx.deployVerticle(VerticleConfig.verticleB);
-
-            } else {
-                System.out.println("deploy A fail : " + recs.cause().getMessage());
-            }
-        });
-
+        vertx.deployVerticle(VerticleConfig.verticleA);
+        vertx.deployVerticle(VerticleConfig.verticleB);
+        vertx.deployVerticle(VerticleConfig.verticleC);
     }
 }

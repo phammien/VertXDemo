@@ -1,6 +1,8 @@
 package com.example.starter;
 
+import com.example.starter.config.SQLConst;
 import com.example.starter.model.Employee;
+import io.netty.util.internal.StringUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -8,36 +10,85 @@ import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
+import io.vertx.jdbcclient.JDBCConnectOptions;
+import io.vertx.jdbcclient.JDBCPool;
+import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.desc.ColumnDescriptor;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class VerticleC extends AbstractVerticle {
 
-  private HashMap<Integer, Employee> employeesMap = new HashMap<>();
+    @Override
+    public void start(Promise<Void> startPromise) throws Exception {
 
-  private void createMap() {
-    employeesMap.put(1, new Employee("e1", "employee1", "e1@gmail.com", 23));
-    employeesMap.put(2, new Employee("e2", "employee2", "e2@gmail.com", 24));
-    employeesMap.put(3, new Employee("e3", "employee3", "e3@gmail.com", 25));
-  }
+        EventBus eb = vertx.eventBus();
 
-  @Override
-  public void start(Promise<Void> startPromise) throws Exception {
+        /* Get massage from B and reply list employee for B */
+        MessageConsumer<String> consumer = eb.consumer("VerticleB");
+        consumer.handler(message -> {
 
-    /* Create data test*/
-    createMap();
+            /*  */
+            JDBCPool pool = JDBCPool.pool(
+                    vertx,
+                    // configure the connection
+                    new JDBCConnectOptions()
+                            // H2 connection string
+                            .setJdbcUrl("jdbc:oracle:thin:@//172.16.13.10:1521/umarketuat")
+                            // username
+                            .setUser("soap_admin")
+                            // password
+                            .setPassword("1234567"),
+                    // configure the pool
+                    new PoolOptions().setMaxSize(16)
+            );
 
-    EventBus eb = vertx.eventBus();
+            pool
+                    .getConnection()
+                    .onFailure(e -> {
+                        System.out.println("Query Manual Fail : " + e);
+                    })
+                    .onSuccess(conn -> {
+                        System.out.println("Prepared Query Manual Success");
 
-    /* Get massage from B and reply list employee for B */
-    MessageConsumer<String> consumer = eb.consumer("VerticleB");
-    consumer.handler(message -> {
+                        // insert
+                        conn
+                                .query(SQLConst.queryAll)
+                                .execute()
+                                .onFailure(e -> {
+                                    System.out.println("Query fail : " + e);
+                                    conn.close();
+                                })
+                                .onSuccess(rows -> {
+                                    System.out.println("Query success");
 
-      System.out.println("Reply to B : " + Json.encodePrettily(employeesMap.values()));
-      message.reply(Json.encodePrettily(employeesMap.values()));
-    });
-  }
+                                    List<Employee> result = new ArrayList<>();
+
+                                    if (rows != null) {
+                                        for (Row row : rows) {
+                                            Employee employee = new Employee();
+                                            employee.setId(row.getInteger("ID").toString());
+                                            employee.setName(row.getString("NAME"));
+                                            employee.setEmail(row.getString("EMAIL"));
+                                            employee.setAge(row.getInteger("AGE"));
+                                            result.add(employee);
+                                        }
+                                    }
+
+                                    System.out.println("Reply to B : " + Json.encodePrettily(result));
+                                    message.reply(Json.encodePrettily(result));
+
+                                    // very important! don't forget to return the connection
+                                    conn.close();
+                                });
+                    });
+
+
+        });
+    }
 }
