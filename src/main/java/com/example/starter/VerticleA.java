@@ -16,6 +16,8 @@ public class VerticleA extends AbstractVerticle {
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
 
+        System.out.println("deploy A");
+
         /* Create a router Object*/
         Router router = Router.router(vertx);
 
@@ -46,7 +48,7 @@ public class VerticleA extends AbstractVerticle {
     }
 
     private void testEventBus(RoutingContext routingContext) {
-        vertx.eventBus().request("VerticleA", "", ar -> {
+        vertx.eventBus().request("VerticleB", "", ar -> {
 
             System.out.println("Calling to Verticle B");
 
@@ -55,7 +57,7 @@ public class VerticleA extends AbstractVerticle {
                 routingContext.response().end(Json.encodePrettily(ar.result().body()));
 
             } else {
-                System.out.println("Fail to call C : " + ar.cause().getMessage());
+                System.out.println("Fail to call B : " + ar.cause().getMessage());
                 routingContext.response().end(Json.encodePrettily("Failed"));
             }
         });

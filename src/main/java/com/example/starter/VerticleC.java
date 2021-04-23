@@ -30,7 +30,7 @@ public class VerticleC extends AbstractVerticle {
         EventBus eb = vertx.eventBus();
 
         /* Get massage from B and reply list employee for B */
-        MessageConsumer<String> consumer = eb.consumer("VerticleB");
+        MessageConsumer<String> consumer = eb.consumer("VerticleC");
         consumer.handler(message -> {
 
             /*  */
@@ -87,8 +87,7 @@ public class VerticleC extends AbstractVerticle {
                                     conn.close();
                                 });
                     });
-
-
         });
+        startPromise.complete();
     }
 }

@@ -39,7 +39,7 @@ public class JDBC {
         return promise.future();
     }
 
-    public Future<RowSet<Row>> query(String sql, String result) {
+    public Future<RowSet<Row>> query(String sql) {
 
         Promise<RowSet<Row>> promise = Promise.promise();
 
@@ -61,8 +61,6 @@ public class JDBC {
                             })
                             .onSuccess(rows -> {
                                 System.out.println("Query success");
-
-                                List<Employee> employeeList = new ArrayList<>();
 
                                 // very important! don't forget to return the connection
                                 conn.close();
